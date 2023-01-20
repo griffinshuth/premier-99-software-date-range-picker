@@ -15,12 +15,14 @@ import Header from "./components/Header";
 import { height, width } from "./modules";
 import chevronL from "./assets/chevronL.png";
 import chevronR from "./assets/chevronR.png";
-
+import chevronL2 from "./assets/chevronL2.png";
+import chevronR2 from "./assets/chevronR2.png";
 const DateRangePicker = ({
   moment,
   startDate,
   endDate,
   onChange,
+  // onClose,
   displayedDate,
   minDate,
   date,
@@ -45,10 +47,13 @@ const DateRangePicker = ({
   buttonContainerStyle,
   buttonStyle,
   buttonTextStyle,
+  showYearNavigator,
   presetButtons,
   open,
+  setShowRange,
+  dateJobsCall
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [weeks, setWeeks] = useState([]);
   const [selecting, setSelecting] = useState(false);
   const [dayHeaders, setDayHeaders] = useState([]);
@@ -99,11 +104,13 @@ const DateRangePicker = ({
   const onClose = () => {
     setIsOpen(false);
     setSelecting(false);
+    setShowRange(false)
     if (!endDate) {
       onChange({
         endDate: startDate,
       });
     }
+    //  if(onClose) onClose();
   };
 
   const previousMonth = () => {
@@ -118,13 +125,26 @@ const DateRangePicker = ({
     });
   };
 
+ const nextYear = () => {
+    onChange({
+      displayedDate: _moment(displayedDate).add(1, "year"),
+    });
+  };
+
+  const previousYear = () => {
+    onChange({
+      displayedDate: _moment(displayedDate).subtract(1, "year"),
+    });
+  };
+
   const selected = useCallback((_date, _startDate, _endDate, __date) => {
     return (
       (_startDate &&
         _endDate &&
         _date.isBetween(_startDate, _endDate, null, "[]")) ||
       (_startDate && _date.isSame(_startDate, "day")) ||
-      (__date && _date.isSame(__date, "day"))
+      (__date && _date.isSame(__date, "day")) ||
+      (_endDate && _date.isSame(_endDate, "day"))
     );
   }, []);
 
@@ -247,7 +267,7 @@ const DateRangePicker = ({
       for (let i = 1; i <= daysInMonth; ++i) {
         let _date = _moment(displayedDate).set("date", i);
         let _selected = selected(_date, startDate, endDate, date);
-        let _disabled = disabled(_date, minDate, maxDate);
+        // let _disabled = disabled(_date, minDate, maxDate);
         week.push(
           <Day
             key={`day-${i}`}
@@ -259,7 +279,7 @@ const DateRangePicker = ({
             disabledTextStyle={disabledTextStyle}
             index={i}
             selected={_selected}
-            disabled={_disabled}
+            // disabled={_disabled}
             select={select}
           />
         );
@@ -309,19 +329,13 @@ const DateRangePicker = ({
     select,
   ]);
 
-  const node = (
+ const node = children ? (
     <View>
       <TouchableWithoutFeedback onPress={_onOpen}>
-        {children ? (
-          children
-        ) : (
-          <View>
-            <Text>Click me to show date picker</Text>
-          </View>
-        )}
+        {children}
       </TouchableWithoutFeedback>
     </View>
-  );
+  ) : null;
 
   return isOpen ? (
     <>
@@ -335,29 +349,53 @@ const DateRangePicker = ({
         <View>
           <View style={mergedStyles.container}>
             <View style={styles.header}>
-              <TouchableOpacity onPress={previousMonth}>
-                {monthPrevButton || (
-                  <Image
-                    resizeMode="contain"
-                    style={mergedStyles.monthButtons}
-                    source={chevronL}
-                  ></Image>
-                )}
-              </TouchableOpacity>
+           {monthPrevButton || (
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity onPress={previousYear}>
+                    <Image
+                      resizeMode="contain"
+                      style={mergedStyles.monthButtons}
+                      source={chevronL2}
+                    ></Image>
+                  </TouchableOpacity>
+                  {showYearNavigator && (
+                    <TouchableOpacity onPress={previousMonth}>
+                      <Image
+                        resizeMode="contain"
+                        style={{ ...mergedStyles.monthButtons, fontSize: 6 }}
+                        source={chevronL}
+                      ></Image>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
               <Text style={mergedStyles.headerText}>
                 {displayedDate.format("MMMM") +
                   " " +
                   displayedDate.format("YYYY")}
               </Text>
-              <TouchableOpacity onPress={nextMonth}>
-                {monthNextButton || (
-                  <Image
-                    resizeMode="contain"
-                    style={mergedStyles.monthButtons}
-                    source={chevronR}
-                  />
+              <View>
+              {monthNextButton || (
+                  <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity onPress={nextMonth}>
+                      <Image
+                        resizeMode="contain"
+                        style={mergedStyles.monthButtons}
+                        source={chevronR}
+                      />
+                    </TouchableOpacity>
+                    {showYearNavigator && (
+                      <TouchableOpacity onPress={nextYear}>
+                        <Image
+                          resizeMode="contain"
+                        style={{ ...mergedStyles.monthButtons, fontSize: 6 }}
+                          source={chevronR2}
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 )}
-              </TouchableOpacity>
+                </View>
             </View>
             <View style={styles.calendar}>
               {dayHeaders && (
@@ -366,34 +404,70 @@ const DateRangePicker = ({
               {weeks}
             </View>
             {presetButtons && (
-              <View style={mergedStyles.buttonContainer}>
-                <Button
+              <View style={{flexDirection:'row-reverse', justifyContent: "space-between" }}>
+                {/* <Button
                   buttonStyle={buttonStyle}
                   buttonTextStyle={buttonTextStyle}
                   onPress={today}
                 >
                   Today
-                </Button>
+                </Button> */}
                 {range && (
                   <>
-                    <Button
-                      buttonStyle={buttonStyle}
+                   <Button
+                      buttonStyle={{  borderRadius: 15,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#bdbdbd",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    marginLeft: 10,
+    marginRight:10,
+    marginBottom: 10,
+  width:150}}
                       buttonTextStyle={buttonTextStyle}
-                      onPress={thisWeek}
+                      onPress={dateJobsCall}
                     >
-                      This Week
+                      Ok
                     </Button>
                     <Button
-                      buttonStyle={buttonStyle}
+                                           buttonStyle={{  borderRadius: 15,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#bdbdbd",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    marginLeft: 10,
+    marginRight:10,
+    marginBottom: 10,
+  width:150}}
                       buttonTextStyle={buttonTextStyle}
-                      onPress={thisMonth}
+                      onPress={_onClose}
                     >
-                      This Month
+                      Cancel
                     </Button>
                   </>
                 )}
               </View>
             )}
+            {/* <Button
+                      buttonStyle={{  borderRadius: 15,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#bdbdbd",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    marginLeft: 10,
+    marginRight:10,
+    marginBottom: 10,}}
+                      buttonTextStyle={buttonTextStyle}
+                      onPress={dateJobsCall}
+                    >
+                      ok
+                    </Button> */}
           </View>
         </View>
       </View>
@@ -415,6 +489,7 @@ DateRangePicker.defaultProps = {
 
 DateRangePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
   startDate: PropTypes.object,
   endDate: PropTypes.object,
   displayedDate: PropTypes.object,
