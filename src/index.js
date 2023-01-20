@@ -425,7 +425,7 @@ const DateRangePicker = ({
     marginLeft: 10,
     marginRight:10,
     marginBottom: 10,
-  width:150}}
+  width:140}}
                       buttonTextStyle={buttonTextStyle}
                       onPress={dateJobsCall}
                     >
@@ -442,7 +442,7 @@ const DateRangePicker = ({
     marginLeft: 10,
     marginRight:10,
     marginBottom: 10,
-  width:150}}
+  width:140}}
                       buttonTextStyle={buttonTextStyle}
                       onPress={_onClose}
                     >
