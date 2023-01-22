@@ -51,7 +51,8 @@ const DateRangePicker = ({
   presetButtons,
   open,
   setShowRange,
-  dateJobsCall
+  dateJobsCall,
+  cancelDate
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [weeks, setWeeks] = useState([]);
@@ -102,6 +103,7 @@ const DateRangePicker = ({
   };
 
   const onClose = () => {
+    cancelDate();
     setIsOpen(false);
     setSelecting(false);
     setShowRange(false)
@@ -113,7 +115,9 @@ const DateRangePicker = ({
     //  if(onClose) onClose();
   };
 
-  const previousMonth = () => {
+
+
+  const previousMonth = () => { 
     onChange({
       displayedDate: _moment(displayedDate).subtract(1, "months"),
     });
